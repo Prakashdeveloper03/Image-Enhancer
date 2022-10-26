@@ -6,69 +6,106 @@ from scipy.interpolate import UnivariateSpline
 
 
 def LookupTable(x, y):
-    spline = UnivariateSpline(x, y)
-    return spline(range(256))
+    spline = UnivariateSpline(
+        x, y
+    )  # 1-D smoothing spline fit to a given set of data points.
+    return spline(range(256))  # data points ranges from 0 to 255
 
 
-def cannize_image(our_image):
-    new_img = np.array(our_image.convert("RGB"))
-    img = cv2.cvtColor(new_img, 1)
-    img = cv2.GaussianBlur(img, (11, 11), 0)
+def cannize_image(input_image):
+    rgb_img = np.array(
+        input_image.convert("RGB")
+    )  # Converts RGB image to numpy nd.array
+    img = cv2.cvtColor(rgb_img, 1)  # Converts an image from one color space to another
+    img = cv2.GaussianBlur(img, (11, 11), 0)  # Blurs an image using a Gaussian filter
+    # Finds edges in an image using the Canny algorithm
     return cv2.Canny(img, 100, 150)
 
 
-def sepia_effect(our_image):
-    img_sepia = np.array(our_image.convert("RGB"))
+def sepia_effect(input_image):
+    rgb_img = np.array(
+        input_image.convert("RGB")
+    )  # Converts RGB image to numpy nd.array
+    # Sepia is one of the most commonly used filters in image editing.
+    # Sepia adds a warm brown effect to photos.
+    # A vintage, calm and nostalgic effect is added to images.
     img_sepia = cv2.transform(
-        img_sepia,
+        rgb_img,
         np.matrix(
             [[0.272, 0.534, 0.131], [0.349, 0.686, 0.168], [0.393, 0.769, 0.189]]
         ),
     )
+    # replaces all 255 above values to 255
     img_sepia[np.where(img_sepia > 255)] = 255
-    img_sepia = np.array(img_sepia, dtype=np.uint8)
-    return img_sepia
+    return np.array(img_sepia, dtype=np.uint8)
 
 
-def winter_effect(our_image):
-    img = np.array(our_image.convert("RGB"))
+def winter_effect(input_image):
+    rgb_img = np.array(
+        input_image.convert("RGB")
+    )  # Converts RGB image to numpy nd.array
     increaseLookupTable = LookupTable([0, 64, 128, 256], [0, 80, 160, 256])
     decreaseLookupTable = LookupTable([0, 64, 128, 256], [0, 50, 100, 256])
-    blue_channel, green_channel, red_channel = cv2.split(img)
-    red_channel = cv2.LUT(red_channel, increaseLookupTable).astype(np.uint8)
-    blue_channel = cv2.LUT(blue_channel, decreaseLookupTable).astype(np.uint8)
+    # In winter effect filter, The warmth of the image will be reduced.
+    blue_channel, green_channel, red_channel = cv2.split(
+        rgb_img
+    )  # splits RGB channels separately.
+    red_channel = cv2.LUT(red_channel, increaseLookupTable).astype(
+        np.uint8
+    )  # The values in the red channel will be reduced.
+    blue_channel = cv2.LUT(blue_channel, decreaseLookupTable).astype(
+        np.uint8
+    )  # The values in the blue channel will be increased.
     return cv2.merge((blue_channel, green_channel, red_channel))
 
 
-def summer_effect(our_image):
-    img = np.array(our_image.convert("RGB"))
+def summer_effect(input_image):
+    rgb_img = np.array(
+        input_image.convert("RGB")
+    )  # Converts RGB image to numpy nd.array
     increaseLookupTable = LookupTable([0, 64, 128, 256], [0, 80, 160, 256])
     decreaseLookupTable = LookupTable([0, 64, 128, 256], [0, 50, 100, 256])
-    blue_channel, green_channel, red_channel = cv2.split(img)
-    red_channel = cv2.LUT(red_channel, decreaseLookupTable).astype(np.uint8)
-    blue_channel = cv2.LUT(blue_channel, increaseLookupTable).astype(np.uint8)
+    # In winter effect filter, The warmth of the image will be increased.
+    blue_channel, green_channel, red_channel = cv2.split(
+        rgb_img
+    )  # splits RGB channels separately.
+    red_channel = cv2.LUT(red_channel, decreaseLookupTable).astype(
+        np.uint8
+    )  # The values in the red channel will be increased.
+    blue_channel = cv2.LUT(blue_channel, increaseLookupTable).astype(
+        np.uint8
+    )  # The values in the blue channel will be reduced.
     return cv2.merge((blue_channel, green_channel, red_channel))
 
 
-def sketch(our_image):
-    image = np.array(our_image.convert("RGB"))
-    grey_img = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    invert = cv2.bitwise_not(grey_img)
-    blur = cv2.GaussianBlur(invert, (21, 21), 0)
-    invertedblur = cv2.bitwise_not(blur)
-    return cv2.divide(grey_img, invertedblur, scale=256.0)
+def sketch(input_image):
+    image = np.array(input_image.convert("RGB"))  # Converts RGB image to numpy nd.array
+    grey_img = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)  # Converts RGB to Gray image
+    invert = cv2.bitwise_not(grey_img)  # Inverts every bit of an array
+    blur = cv2.GaussianBlur(
+        invert, (21, 21), 0
+    )  # Blurs an image using a Gaussian filter
+    invertedblur = cv2.bitwise_not(
+        blur
+    )  # Again, Inverts every bit of an blurred image array
+    return cv2.divide(
+        grey_img, invertedblur, scale=256.0
+    )  # Performs per-element division of two image arrays
 
 
 def main():
     st.header("Image Enhancer")
     st.text("Build with Streamlit and OpenCV")
+    # file uploader for getting user input image
     image_file = st.file_uploader("Upload Image", type=["jpg", "png", "jpeg"])
+    # shows all the options list
     enhance_type = st.sidebar.selectbox(
         "Enhance Type",
         [
             "Gray Scale",
             "Pencil Effect",
             "Sepia Effect",
+            "Sharp Effect",
             "Invert Effect",
             "Summer Effect",
             "Winter Effect",
@@ -84,9 +121,15 @@ def main():
         match enhance_type:
             case "Gray Scale":
                 st.text("Filtered Image")
-                new_img = np.array(our_image.convert("RGB"))
-                img = cv2.cvtColor(new_img, 1)
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                new_img = np.array(
+                    our_image.convert("RGB")
+                )  # Converts RGB image to numpy nd.array
+                img = cv2.cvtColor(
+                    new_img, 1
+                )  # Basically coloured components from the image are removed.
+                gray = cv2.cvtColor(
+                    img, cv2.COLOR_BGR2GRAY
+                )  # cv2.cvtColor() to convert the image to greyscale.
                 st.image(gray)
 
             case "Cannize Effect":
@@ -114,10 +157,19 @@ def main():
                 result_img = winter_effect(our_image)
                 st.image(result_img)
 
+            case "Sharp Effect":
+                st.text("Filtered Image")
+                new_img = np.array(our_image.convert("RGB"))
+                kernel = np.array([[-1, -1, -1], [-1, 9.5, -1], [-1, -1, -1]])
+                sharpen_img = cv2.filter2D(new_img, -1, kernel)
+                st.image(sharpen_img)
+
             case "Invert Effect":
                 st.text("Filtered Image")
-                image = np.array(our_image.convert("RGB"))
-                result_img = cv2.bitwise_not(image)
+                rgb_img = np.array(our_image.convert("RGB"))
+                # we have to do is basically invert the pixel values.
+                # This can be done by subtracting the pixel values by 255
+                result_img = cv2.bitwise_not(rgb_img)  # Inverts every bit of an array
                 st.image(result_img)
 
             case "Contrast":
@@ -130,6 +182,8 @@ def main():
             case "Brightness":
                 st.text("Filtered Image")
                 c_rate = st.sidebar.slider("Brightness", 0.5, 3.5, 2.50)
+                # we have seen filters that make the image a lot brighter, others reduce the brightness.
+                # The c_rate value can be changed to get the appropriate results.
                 enhancer = ImageEnhance.Brightness(our_image)
                 img_output = enhancer.enhance(c_rate)
                 st.image(img_output)
