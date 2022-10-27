@@ -4,6 +4,19 @@ import streamlit as st
 from PIL import Image, ImageEnhance
 from scipy.interpolate import UnivariateSpline
 
+# setting app's title, icon & layout
+st.set_page_config(page_title="Image Enhancer", page_icon="🎯")
+
+# css style to hide footer, header and main menu details
+hide_st_style = """
+            <style>
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            </style>
+            """
+st.markdown(hide_st_style, unsafe_allow_html=True)
+
 
 def LookupTable(x, y):
     spline = UnivariateSpline(
