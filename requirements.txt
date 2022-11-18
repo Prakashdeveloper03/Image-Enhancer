@@ -1,6 +1,6 @@
-opencv-python-headless==4.6.0.66
-streamlit==1.13.0
-numpy==1.23.1
+numpy==1.21.6
+opencv_python_headless==4.6.0.66
+Pillow==9.3.0
 rembg==2.0.25
-scipy==1.9.0
-Pillow==9.2.0
+scipy==1.7.3
+streamlit==1.14.0
