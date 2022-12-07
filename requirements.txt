@@ -1,6 +1,5 @@
 numpy
 opencv_python_headless
 Pillow
-rembg
 scipy
 streamlit

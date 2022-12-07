@@ -49,9 +49,6 @@ streamlit run app.py
 ### Contrast:
 ![constrast sample image](images/contrast.jpeg)
 
-### Background Remover:
-![constrast sample image](images/background_remover.png)
-
 ### Gray-Scale Effect:
 ![grayscale image](images/grayscale.jpeg)
 

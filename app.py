@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import streamlit as st
-from rembg import remove
 from PIL import Image, ImageEnhance
 from scipy.interpolate import UnivariateSpline
 
@@ -107,7 +106,7 @@ def sketch(input_image):
     )  # Performs per-element division of two image arrays
 
 
-def main():
+def main():  # sourcery skip: extract-method
     st.header("Image Enhancer")
     st.text("Build with Streamlit and OpenCV")
     # file uploader for getting user input image
@@ -123,7 +122,6 @@ def main():
             "Invert Effect",
             "Summer Effect",
             "Winter Effect",
-            "Background Remover",
             "Brightness",
             "Blurring",
             "Contrast",
@@ -185,13 +183,6 @@ def main():
                 # we have to do is basically invert the pixel values.
                 # This can be done by subtracting the pixel values by 255
                 result_img = cv2.bitwise_not(rgb_img)  # Inverts every bit of an array
-                st.image(result_img)
-
-            case "Background Remover":
-                st.text("Filtered Image")
-                # we have to do is basically invert the pixel values.
-                # This can be done by subtracting the pixel values by 255
-                result_img = remove(our_image)  # Inverts every bit of an array
                 st.image(result_img)
 
             case "Contrast":
